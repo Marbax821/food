@@ -52,9 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
             seconds = 0;
         } else {
             days = Math.floor(t / (1000 * 60 * 60 * 24)),
-            hours = Math.floor((t / (1000 * 60 * 60) % 24)),
-            minutes = Math.floor((t / 1000 / 60) % 60),
-            seconds = Math.floor((t / 1000) % 60);
+                hours = Math.floor((t / (1000 * 60 * 60) % 24)),
+                minutes = Math.floor((t / 1000 / 60) % 60),
+                seconds = Math.floor((t / 1000) % 60);
         }
 
         return {
@@ -99,4 +99,60 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     setClock('.timer', deadline);
+
+    // Modal
+
+    const modalTrigger = document.querySelectorAll('[data-modal]'),
+        modal = document.querySelector('.modal'),
+        modalCloseBtn = document.querySelector('[data-close]');
+
+    // ф-ция открытия окна
+    function openModal() {
+        modal.classList.add('show');
+        modal.classList.remove('hide');
+        document.body.style.overflow = 'hidden';
+
+        // не показывать окно если юзер уже открывал его самостоятельно
+        clearInterval(modalTimerId);
+    }
+
+    modalTrigger.forEach(btn => {
+        btn.addEventListener('click', openModal);
+    });
+
+    // ф-ция закрытия
+    function closeModal() {
+        modal.classList.add('hide');
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    // закрытие окна при клике на кнопку
+    modalCloseBtn.addEventListener('click', closeModal);
+
+    // закрытие по нажатию на подложку
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // закрытие модального окна при нажатии на "escape", при условии что оно открыто
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Escape' && modal.classList.contains('show')) {
+            closeModal();
+        }
+    });
+
+    const modalTimerId = setTimeout(openModal, 5000);
+
+    // показать окно если юзер доскролил до конца страницы(только 1 раз)
+    function showModalByScroll() {
+        if (window.scrollY + document.documentElement.clientHeight >= document.documentElement.scrollHeight - 1) {
+            openModal();
+            window.removeEventListener('scroll', showModalByScroll);
+        }
+    }
+
+    window.addEventListener('scroll', showModalByScroll);
 });
